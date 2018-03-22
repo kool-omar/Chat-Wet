@@ -29,8 +29,8 @@ import {
         console.log('component mounted',this.props)
     }
 
-    setParentState = (text) => {
-        this.props.setEmail(text)
+    setParentState = () => {
+        this.props.getState(this.state)
     }
 
     componentWillReceiveProps(nextProps){
@@ -42,6 +42,10 @@ import {
       console.log('text changed', text)
     }
 
+
+    componentDidUpdate(nextProps,nextState){
+
+    }
 
     render(){
 
@@ -60,9 +64,16 @@ import {
                                             <TextInput
 
                                             style = {styles.textInput}
+                                            autoCorrect = {false}
                                             placeholder = {"User Name"}
                                             textColor= {'thistle'}
-                                            
+                                            onChangeText = { (text) => {
+                                              console.log('username text',text)
+                                              this.setState({
+                                                userName: text
+                                              })
+                                              }
+                                          }
                                             >   
 
                             
@@ -79,12 +90,13 @@ import {
               style = {styles.textInput}
               placeholder = {"Email"}
               textColor= {'thistle'}
+              autoCorrect = {false}
               onChangeText = { (text) => {
 
                 this.setState({
                   email: text
                 })
-                this.setParentState(text)
+
               }}
               value = {this.props.email}
 
@@ -100,10 +112,13 @@ import {
               style = {styles.textInput}
               placeholder = {"Password"}
               textColor= {'thistle'}
+              autoCorrect = {false}
+              secureTextEntry = {true}
               onChangeText = { (text) => {
                 this.setState({
                   password: text
                 })
+
               }}
               
             >   
@@ -112,11 +127,13 @@ import {
             </TextInput>
             </View>
              <TouchableOpacity
-         style={styles.loginButton}
-         onPress={this.props.onPressSubmit}
-          >
-         <Text style = {styles.loginOpacityText} > {this.props.submitButtonText} </Text>
-       </TouchableOpacity>
+              style={styles.loginButton}
+              onPress ={ () => {
+                this.props.onPressSubmit(this.state)
+              }}
+                >
+              <Text style = {styles.loginOpacityText} > {this.props.submitButtonText} </Text>
+            </TouchableOpacity>
        </View>
         )
     }

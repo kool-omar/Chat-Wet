@@ -22,6 +22,10 @@ import SignUp from './SignUp'
 import * as Constants from '../constants'
 import Form from './Form'
 import Chat from './Chat'
+import { firebaseAuth } from '../Firebase'
+import { Bubbles, DoubleBounce, Bars, Pulse } from 'react-native-loader'
+import { validateClientEmail, validateEmailAndPassword } from '../Helpers'
+
 
 const missionStatement = "The quintessential chat application"
 
@@ -32,6 +36,9 @@ export default class HomeScreen extends Component<Props> {
     super(props)
     this.state = {
       email:'',
+      password: '',
+      showLoader: false,
+      initialising : true,
     }
     
   }
@@ -41,16 +48,79 @@ export default class HomeScreen extends Component<Props> {
     title: 'Home'
   }
 
-  setEmail = (text) => {
-    console.log('text',text)
-    this.setState({
-      email: text
+   /**
+   * When the App component mounts, we listen for any authentication
+   * state changes in Firebase.
+   * Once subscribed, the 'user' parameter will either be null 
+   * (logged out) or an Object (logged in)
+   */
+  componentDidMount() {
+    this.authSubscription = firebaseAuth.onAuthStateChanged((user) => {
+      this.setState({
+        initialising: false,
+        user,
+      })
+      this.authStateChanged(user)
     })
   }
 
-  onPressLogin = () => {
-      console.log("Login")
+
+  /**
+   * Don't forget to stop listening for authentication state changes
+   * when the component unmounts.
+   */
+  componentWillUnmount() {
+    this.authSubscription();
+  }
+
+
+  authStateChanged = (user) => {
+    if(user){
       this.props.navigation.navigate('Chat')
+    }
+  }
+
+  onLogin = (state) => {
+    const { email, password } = state;
+    this.setState({
+      showLoader: true
+    })
+    firebaseAuth.signInWithEmailAndPassword(email, password)
+
+      .then((user) => {
+        // If you need to do anything with the user, do it here
+        // The user will be logged in automatically by the 
+        // `onAuthStateChanged` listener we set up in App.js earlier
+        this.setState({
+          showLoader: false
+        })
+        this.props.navigation.navigate('Chat')
+      })
+      .catch((error) => {
+        const { code, message } = error;
+        // For details of error codes, see the docs
+        // The message contains the default Firebase string
+        // representation of the error
+        this.setState({
+          showLoader: false
+      })
+      alert(message)
+      });
+  }
+
+  getState = (state) => {
+    console.log('text',state)
+    this.setState({
+      email: state.email,
+      password: state.password,
+    })
+  }
+
+  onPressLogin = (state) => {
+      console.log("Login")
+      if(validateEmailAndPassword(state.email,state.password)){
+        this.onLogin(state)
+      }
   } 
 
   onPressSignUp = () => {
@@ -75,25 +145,25 @@ export default class HomeScreen extends Component<Props> {
         <Text style= {styles.statementText}> 
           {missionStatement}
           </Text>
+          { this.state.initialising ? < Pulse  size={40} color={Constants.Colors.skyBlue} /> :
+              <View style = {styles.subView}>
+                    <View style = {styles.loader}>
+                           { this.state.showLoader ? < Pulse  size={30} color={Constants.Colors.skyBlue} /> : null }
+                      </View>
+                          <Form 
+                            userName={false}
+                            submitButtonText = {'Login'}
+                            onPressSubmit = {this.onPressLogin}
+                            getState = {this.getState}
+                          />
+                           <TouchableOpacity style = {styles.signUpOpacity}
 
-        <Form 
-          userName={false}
-          submitButtonText = {'Login'}
-          onPressSubmit = {this.onPressLogin}
-          setEmail = {this.setEmail}
-        />
-
-
-            
-       
-
-       <TouchableOpacity style = {styles.signUpOpacity}
-
-         onPress={this.onPressSignUp}
-          >
-         <Text style = {styles.signupOpacityText} > Sign Up </Text>
-       </TouchableOpacity>
-
+                          onPress={this.onPressSignUp}
+                          >
+                          <Text style = {styles.signupOpacityText} > Sign Up </Text>
+                          </TouchableOpacity>
+                          </View>
+        }
 
       </KeyboardAwareScrollView>
     );
@@ -123,6 +193,7 @@ export const RootStack = StackNavigator(
     },
     SignUp: {
       screen: SignUp,
+      
     },
   },
   {
@@ -162,7 +233,10 @@ const styles = StyleSheet.create({
   },
 
   
+  subView :{
+    alignItems: 'center',
 
+  },
 
   container: {
     flex: 1,

@@ -52,11 +52,26 @@ import {
         }
         
       }
-      
-      getState = (state) => {
-         this.state = state
-          console.log('sign up state ', state)
+
+      setEmail = (text) => {
+          this.setState({
+              email: text
+          })
       }
+
+      setPassword = (text) => {
+        this.setState({
+            password: text
+        })
+    }
+
+    setUserName = (text) => {
+        this.setState({
+            userName: text
+        })
+    }
+      
+     
 
       goBack = () => {
           this.props.navigation.goBack()
@@ -102,10 +117,10 @@ import {
           });
       }
 
-      onPressConfirm = (state) => {
-        console.log('sign up', state.email)
-       if( validateEmailAndPassword(state.email,state.password)){
-            this.onRegister(state)
+      onPressConfirm = () => {
+        console.log('sign up', this.state.email)
+       if( validateEmailAndPassword(this.state.email,this.state.password)){
+            this.onRegister(this.state)
        }
        else {
            console.log('else krdia')
@@ -129,7 +144,9 @@ import {
                     submitButtonText = {'Confirm'}
                     onPressSubmit = {this.onPressConfirm}
                     email = {this.props.navigation.state.params.email}
-                    getState = {this.getState}
+                    setEmail = {this.setEmail}
+                    setPassword = {this.setPassword}
+                    setUserName = {this.setUserName}
                     
                     />
 

@@ -18,11 +18,7 @@ import {
     constructor(props){
         super(props)
 
-        this.state={
-            userName:'',
-            email: "",
-            password : "",
-        }
+       
     }
 
     componentDidMount(){
@@ -69,9 +65,7 @@ import {
                                             textColor= {'thistle'}
                                             onChangeText = { (text) => {
                                               console.log('username text',text)
-                                              this.setState({
-                                                userName: text
-                                              })
+                                              this.props.setUserName(text)
                                               }
                                           }
                                             >   
@@ -93,9 +87,7 @@ import {
               autoCorrect = {false}
               onChangeText = { (text) => {
 
-                this.setState({
-                  email: text
-                })
+               this.props.setEmail(text)
 
               }}
               value = {this.props.email}
@@ -115,10 +107,8 @@ import {
               autoCorrect = {false}
               secureTextEntry = {true}
               onChangeText = { (text) => {
-                this.setState({
-                  password: text
-                })
-
+               
+                this.props.setPassword(text)
               }}
               
             >   
@@ -129,7 +119,7 @@ import {
              <TouchableOpacity
               style={styles.loginButton}
               onPress ={ () => {
-                this.props.onPressSubmit(this.state)
+                this.props.onPressSubmit()
               }}
                 >
               <Text style = {styles.loginOpacityText} > {this.props.submitButtonText} </Text>

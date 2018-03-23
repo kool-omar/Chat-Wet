@@ -30,6 +30,7 @@ import { validateClientEmail, validateEmailAndPassword } from '../Helpers'
 const missionStatement = "The quintessential chat application"
 
 type Props = {};
+
 export default class HomeScreen extends Component<Props> {
 
   constructor(props){
@@ -39,6 +40,7 @@ export default class HomeScreen extends Component<Props> {
       password: '',
       showLoader: false,
       initialising : true,
+      user : null
     }
     
   }
@@ -54,9 +56,11 @@ export default class HomeScreen extends Component<Props> {
    * Once subscribed, the 'user' parameter will either be null 
    * (logged out) or an Object (logged in)
    */
+
   componentDidMount() {
     this.authSubscription = firebaseAuth.onAuthStateChanged((user) => {
       this.setState({
+
         initialising: false,
         user,
       })
@@ -80,6 +84,19 @@ export default class HomeScreen extends Component<Props> {
     }
   }
 
+
+    setEmail = (text) => {
+    this.setState({
+        email: text
+    })
+    }
+
+    setPassword = (text) => {
+      this.setState({
+          password: text
+      })
+    }
+
   onLogin = (state) => {
     const { email, password } = state;
     this.setState({
@@ -94,7 +111,7 @@ export default class HomeScreen extends Component<Props> {
         this.setState({
           showLoader: false
         })
-        this.props.navigation.navigate('Chat')
+
       })
       .catch((error) => {
         const { code, message } = error;
@@ -108,18 +125,12 @@ export default class HomeScreen extends Component<Props> {
       });
   }
 
-  getState = (state) => {
-    console.log('text',state)
-    this.setState({
-      email: state.email,
-      password: state.password,
-    })
-  }
+ 
 
-  onPressLogin = (state) => {
+  onPressLogin = () => {
       console.log("Login")
-      if(validateEmailAndPassword(state.email,state.password)){
-        this.onLogin(state)
+      if(validateEmailAndPassword(this.state.email,this.state.password)){
+        this.onLogin(this.state)
       }
   } 
 
@@ -130,6 +141,8 @@ export default class HomeScreen extends Component<Props> {
       email: this.state.email
     })
   }
+
+ 
 
   render() {
     return (
@@ -146,7 +159,9 @@ export default class HomeScreen extends Component<Props> {
           {missionStatement}
           </Text>
           { this.state.initialising ? < Pulse  size={40} color={Constants.Colors.skyBlue} /> :
-              <View style = {styles.subView}>
+            <View style = {styles.subView}>
+              { !this.state.user ?
+                <View style = {styles.subView}>
                     <View style = {styles.loader}>
                            { this.state.showLoader ? < Pulse  size={30} color={Constants.Colors.skyBlue} /> : null }
                       </View>
@@ -154,21 +169,33 @@ export default class HomeScreen extends Component<Props> {
                             userName={false}
                             submitButtonText = {'Login'}
                             onPressSubmit = {this.onPressLogin}
-                            getState = {this.getState}
+                            setEmail = {this.setEmail}
+                            setPassword = {this.setPassword}
+
                           />
                            <TouchableOpacity style = {styles.signUpOpacity}
 
-                          onPress={this.onPressSignUp}
-                          >
+                                onPress={this.onPressSignUp}
+                                >
                           <Text style = {styles.signupOpacityText} > Sign Up </Text>
                           </TouchableOpacity>
                           </View>
-        }
+                          : <LoggedIn />
+              }
+              </View>
+                          
+          }
 
       </KeyboardAwareScrollView>
     );
   }
 }
+
+const LoggedIn = () =>( 
+  <Text style = {styles.loggedInText}>
+    Logged In
+  </Text>
+  )
 
  const MainStack = StackNavigator({
     Home: {
@@ -177,12 +204,8 @@ export default class HomeScreen extends Component<Props> {
     Chat : {
       screen: Chat
     },
-  },
-  {
-    
-
-    
   }
+  
 )
 
 export const RootStack = StackNavigator(
@@ -200,12 +223,17 @@ export const RootStack = StackNavigator(
     mode: 'modal',
 
     headerMode: 'none'
-  }
+  },
 );
 
 
 const styles = StyleSheet.create({
 
+  loggedInText: {
+    color: Constants.Colors.skyBlue,
+    fontSize: 45,
+
+  },
 
   titleText : {
     color: Constants.Colors.skyBlue,

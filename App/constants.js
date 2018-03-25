@@ -8,5 +8,6 @@ export const Colors = {
     thistle : 'thistle',
     skyBlue: '#87cefa',
     white: 'white',
-    red: 'red'
+    red: 'red',
+    green: 'green',
 }

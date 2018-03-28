@@ -47,6 +47,7 @@ export default class Chat extends Component {
              this.messagesRef = firebaseDatabase.ref('messages/')
              this.state = {
                 messages: [],
+                fetch : true,
               }
 
               
@@ -77,7 +78,8 @@ export default class Chat extends Component {
               })
               this.setState( (previousState) => {
                 return{
-                  messages
+                  fetch : false,
+                  messages,
                 }
               })
               
@@ -122,7 +124,7 @@ export default class Chat extends Component {
                 };
               });
             this.setState(previousState => ({
-              // messages: GiftedChat.prepend(previousState.messages, messages, false),
+              messages: GiftedChat.prepend(previousState.messages, messages, false),
             }))
             var messagePush =  this.messagesRef.push(messages[0])
            
@@ -133,11 +135,13 @@ export default class Chat extends Component {
              <GiftedChat
 
                 // inverted = {false}
+                loadEarlier = {true}
+                isLoadingEarlier = {this.state.fetch}
                 messages={this.state.messages}
                 onSend={messages => this.onSend(messages)}
                 user={{
-                    _id: 1,
-                    uid: firebaseAuth.currentUser.uid,
+                    _id: firebaseAuth.currentUser.uid,
+
                 }}
                 />
           </View>

@@ -33,13 +33,13 @@ export default class Chat extends Component {
                         })
                     }}
                     title = "Logout"
-        
+
                 />
            ),
-   
-   
+
+
            }
-           
+
          }
 
          constructor(props){
@@ -50,16 +50,16 @@ export default class Chat extends Component {
                 fetch : true,
               }
 
-              
+
          }
 
-         
 
 
-        
+
+
           listenForMessages(messagesRef) {
             messagesRef.on('value', (snap) => {
-        
+
               // get children as an array
               var messages = [];
               snap.forEach((child) => {
@@ -82,38 +82,15 @@ export default class Chat extends Component {
                   messages,
                 }
               })
-              
-              
-        
+
+
+
             });
           }
 
          componentWillMount() {
              this.listenForMessages(this.messagesRef)
-             this.setState({
-                messages: [
-                  {
-                    _id: 1,
-                    text: 'Hello developer',
-                    createdAt: new Date(),
-                    user: {
-                      _id: 2,
-                      name: 'React Native',
-                      avatar: 'https://facebook.github.io/react/img/logo_og.png',
-                    },
-                  },
-                  {
-                    _id: 2,
-                    text: 'H',
-                    createdAt: new Date(),
-                    user: {
-                      _id: 2,
-                      name: 'React Native',
-                      avatar: 'https://facebook.github.io/react/img/logo_og.png',
-                    },
-                  },
-                ],
-              })
+             
           }
          onSend(messages = []) {
             messages = messages.map((message) => {
@@ -127,21 +104,21 @@ export default class Chat extends Component {
               messages: GiftedChat.prepend(previousState.messages, messages, false),
             }))
             var messagePush =  this.messagesRef.push(messages[0])
-           
+
           }
     render(){
         return (
             <View style={styles.container}>
              <GiftedChat
-
-                // inverted = {false}
-                loadEarlier = {true}
+                showUserAvatar
+                inverted = {false}
+                // loadEarlier = {true}
                 isLoadingEarlier = {this.state.fetch}
                 messages={this.state.messages}
                 onSend={messages => this.onSend(messages)}
                 user={{
                     _id: firebaseAuth.currentUser.uid,
-
+                    name: firebaseAuth.currentUser.displayName
                 }}
                 />
           </View>
@@ -153,7 +130,8 @@ const styles = StyleSheet.create({
     container: {
         flex : 1,
         backgroundColor: Constants.Colors.white,
-        
+        paddingTop: 20,
+
     },
     itemView:{
         backgroundColor: Constants.Colors.skyBlue,
@@ -161,7 +139,7 @@ const styles = StyleSheet.create({
         marginRight: 10,
         marginLeft:10,
     },
-    
+
     itemHeader : {
         padding: 10,
         fontSize: 18,
